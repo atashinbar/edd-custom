@@ -43,43 +43,126 @@ function send_mobile_verification_sms() {
     wp_die();
 }
 
-function footer_script() {
-    ?>
-    <script>
-        (function($){
-            $( ".sendcodetaeed" ).on( "click", function(e) {
-                e.preventDefault();
-                var $this = $(this),
-                    $wrap = $this.closest('#edd-phone-wrap'),
-                    $phone_number = $wrap.find('[name="edd_phone"]').val();
-                    $nonce = $wrap.find('[name="edd_phone"]').attr('data-nonce');
+function is_edd_checkout() {
+    if (class_exists('Easy_Digital_Downloads')) {
+        // Check if EDD is active
+        global $edd_options;
 
-                if ( $phone_number.length === 11 ) {
-                    $.ajax({
-                        type: "POST",
-                        dataType: "json",
-                        url: "<?php echo admin_url( 'admin-ajax.php' ); ?>",
-                        data: {
-                            nonce: $nonce,
-                            action: 'send_mobile_verification_sms',
-                            phone: $phone_number
-                        },
-                        success: function (response) {
-                            console.log(response)
-                        },
-                        error: function (jqXHR, textStatus, errorThrown) {
-                            if ( jqXHR.status !== 200 ) {
-                                alert( jqXHR.responseJSON );
-                            }
-                        }
-                    });
-                }
-            } );
-        })(jQuery);
-    </script>
-    <?php
+        if (is_page() && isset($edd_options['purchase_page'])) {
+            // Check if the current page is the EDD purchase/checkout page
+            return is_page($edd_options['purchase_page']);
+        }
+    }
+    return false;
+}
+
+function footer_script() {
+	if ( is_edd_checkout() ) :
+		?>
+		<script>
+			(function($){
+				$( ".sendcodetaeed" ).on( "click", function(e) {
+					e.preventDefault();
+					var $this = $(this),
+						$wrap = $this.closest('#edd-phone-wrap'),
+						$phone_number = $wrap.find('[name="edd_phone"]').val();
+						$nonce = $wrap.find('[name="edd_phone"]').attr('data-nonce');
+
+						console.log($phone_number.length)
+					if ( $phone_number.length === 11 ) {
+						$.ajax({
+							type: "POST",
+							dataType: "json",
+							url: "<?php echo admin_url( 'admin-ajax.php' ); ?>",
+							data: {
+								nonce: $nonce,
+								action: 'send_mobile_verification_sms',
+								phone: $phone_number
+							},
+							success: function (response) {
+								console.log(response)
+							},
+							error: function (jqXHR, textStatus, errorThrown) {
+								if ( jqXHR.status !== 200 ) {
+									alert( jqXHR.responseJSON );
+								}
+							}
+						});
+					}
+				} );
+			})(jQuery);
+		</script>
+
+		<style>
+			.wp-block-edd-checkout#edd_checkout_form_wrap label {
+				color: #000;
+				font-size: 20px;
+				font-family:'Vazirmatn',Arial,Roboto;
+				margin-bottom: 20px;
+			}
+			.wp-block-edd-checkout#edd_checkout_form_wrap input[type=email],
+			.wp-block-edd-checkout#edd_checkout_form_wrap input[type=password],
+			.wp-block-edd-checkout#edd_checkout_form_wrap input[type=text],
+			.wp-block-edd-checkout#edd_checkout_form_wrap select,
+			.wp-block-edd-checkout#edd_checkout_form_wrap [type="tel"] {
+				border: 1px solid #aaa !important;
+				border-radius: 6px !important;
+				background: #FCFCFC !important;
+				padding: 10px !important;
+				box-sizing: unset !important;
+				font-size: 17px;
+				font-family:'Vazirmatn',Arial,Roboto;
+			}
+
+			.wp-block-edd-checkout#edd_checkout_form_wrap .edd-submit, .sendcodetaeed {
+				background: #487bff;
+				height: 50px;
+				padding: 0 30px;
+				position: relative;
+				border-radius: 12px;
+				margin-top: 10px;
+				margin-left: 10px;
+				box-shadow: none !important;
+				border: none;
+				color: #fff;
+				font-family:'Vazirmatn',Arial,Roboto;
+			}
+
+			.sendcodetaeed:before {
+				content: "";
+				width: 100%;
+				background: transparent;
+				display: block;
+				height: 47px;
+				position: absolute;
+				top: -5px;
+				left: -9px;
+				border-radius: 12px;
+				border: 2px solid #15121d;
+			}
+
+			#edd_purchase_form form input::-webkit-input-placeholder { /* Chrome/Opera/Safari */
+				color: #aaa;
+				font-size: 14px;
+			}
+			#edd_purchase_form form input::-moz-placeholder { /* Firefox 19+ */
+				color: #aaa;
+				font-size: 14px;
+			}
+			#edd_purchase_form form input:-ms-input-placeholder { /* IE 10+ */
+				color: #aaa;
+				font-size: 14px;
+			}
+			#edd_purchase_form form input:-moz-placeholder { /* Firefox 18- */
+				color: #aaa;
+				font-size: 14px;
+			}
+		</style>
+		<?php
+	endif;
 }
 add_action( 'wp_footer', 'footer_script', 9999 );
+
 function custom_edd_display_checkout_custom_fields() {
     ?>
 	<script>
@@ -129,11 +212,10 @@ function custom_edd_display_checkout_custom_fields() {
 			<span class="edd-required-indicator">*</span>
 		<?php endif; ?>
 		</label>
-        <span class="edd-description" id="edd-phone-description"><?php esc_html_e( 'شماره موبایل خود را وارد کنید.', 'easy-digital-downloads' ); ?></span>
         <input data-nonce="<?php echo wp_create_nonce( 'sendcodetaeed' ); ?>" class="edd_phone edd-input<?php if ( edd_field_is_required( 'edd_phone' ) ) { echo ' اجباری'; } ?>" type="tel" name="edd_phone" id="edd-phone" pattern="[0-9]{11}" placeholder="<?php _e( 'فرمت: 09121234567', 'easy-digital-downloads' ); ?>">
         <button href="#" class="sendcodetaeed">ارسال کد تایید شماره موبایل</button>
     </p>
-     <p id="edd-phone-taeed-wrap">
+    <p id="edd-phone-taeed-wrap">
         <label class="edd-label" for="edd-phone">
 		<?php esc_html_e( 'کد تایید را وارد کنید', 'easy-digital-downloads' ); ?>
 		<?php if ( edd_field_is_required( 'edd_phone_taeed' ) ) : ?>
@@ -149,7 +231,6 @@ function custom_edd_display_checkout_custom_fields() {
 			<span class="edd-required-indicator">*</span>
 		<?php endif; ?>
 		</label>
-        <span class="edd-description" id="edd-password-description"><?php esc_html_e( 'رمز عبور انتخاب کنید.', 'easy-digital-downloads' ); ?></span>
         <input onkeyup="checkPasswordStrength()" class="edd_password edd-input<?php if ( edd_field_is_required( 'edd_password' ) ) { echo ' اجباری'; } ?>" type="text" name="edd_password" id="edd-password" placeholder="<?php _e( 'رمز عبور', 'easy-digital-downloads' ); ?>">
 		<div id="password-strength"></div>
     </p>
