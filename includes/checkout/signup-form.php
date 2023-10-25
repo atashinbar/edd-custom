@@ -64,12 +64,13 @@ function footer_script() {
 				$( ".sendcodetaeed" ).on( "click", function(e) {
 					e.preventDefault();
 					var $this = $(this),
-						$wrap = $this.closest('#edd-phone-wrap'),
+						$wrap = $this.closest('.taeed-phone'),
 						$phone_number = $wrap.find('[name="edd_phone"]').val();
 						$nonce = $wrap.find('[name="edd_phone"]').attr('data-nonce');
 
-						console.log($phone_number.length)
 					if ( $phone_number.length === 11 ) {
+						$this.attr('disabled', true);
+						$this.find('.loader').show();
 						$.ajax({
 							type: "POST",
 							dataType: "json",
@@ -80,9 +81,18 @@ function footer_script() {
 								phone: $phone_number
 							},
 							success: function (response) {
-								console.log(response)
+								$('#edd-phone-taeed-wrap').fadeIn();
+								$('#edd-phone-wrap').fadeOut();
+								$this.removeAttr('disabled');
+								$this.find('.loader').hide();
+
+								// Start the countdown when the document is ready
+								countdown(120);
+
 							},
 							error: function (jqXHR, textStatus, errorThrown) {
+								$this.removeAttr('disabled');
+								$this.find('.loader').hide();
 								if ( jqXHR.status !== 200 ) {
 									alert( jqXHR.responseJSON );
 								}
@@ -90,6 +100,25 @@ function footer_script() {
 						});
 					}
 				} );
+
+
+				function countdown(number) {
+					if (number >= 0) {
+						// Update the content of the span with the current number
+						$('span.counter').text(number);
+
+						// Decrement the number and recursively call the countdown function
+						setTimeout(function() {
+							countdown(number - 1);
+						}, 1000); // Change the delay (in milliseconds) as needed
+					} else {
+						// Stop the countdown when the number reaches 0
+						$('#edd-phone-wrap').fadeIn();
+						$('#edd-phone-taeed-wrap').fadeOut();
+						// $('.sendcodetaeed').removeAttr('disabled')
+						// $('.sendcodetaeed').text('ارسال کد تایید شماره موبایل')
+					}
+				}
 			})(jQuery);
 		</script>
 
@@ -126,6 +155,18 @@ function footer_script() {
 				border: none;
 				color: #fff;
 				font-family:'Vazirmatn',Arial,Roboto;
+				cursor: pointer;
+				transition: all .3s ease;
+			}
+
+			.sendcodetaeed:disabled {
+				background: #b3b3b3;
+				cursor: no-drop;
+				pointer-events: none;
+			}
+
+			.wp-block-edd-checkout#edd_checkout_form_wrap .edd-submit:hover, .sendcodetaeed:hover {
+				background: #ffab48;
 			}
 
 			.sendcodetaeed:before {
@@ -156,6 +197,26 @@ function footer_script() {
 			#edd_purchase_form form input:-moz-placeholder { /* Firefox 18- */
 				color: #aaa;
 				font-size: 14px;
+			}
+
+			.loader {
+				width: 18px;
+				height: 18px;
+				border: 2px solid #FFF;
+				border-bottom-color: transparent;
+				border-radius: 50%;
+				display: inline-block;
+				box-sizing: border-box;
+				animation: rotation 1s linear infinite;
+			}
+
+			@keyframes rotation {
+				0% {
+					transform: rotate(0deg);
+				}
+				100% {
+					transform: rotate(360deg);
+				}
 			}
 		</style>
 		<?php
@@ -205,36 +266,50 @@ function custom_edd_display_checkout_custom_fields() {
             }
         }
     </script>
-    <p id="edd-phone-wrap">
-        <label class="edd-label" for="edd-phone">
-		<?php esc_html_e( 'شماره موبایل', 'easy-digital-downloads' ); ?>
-		<?php if ( edd_field_is_required( 'edd_phone' ) ) : ?>
-			<span class="edd-required-indicator">*</span>
-		<?php endif; ?>
-		</label>
-        <input data-nonce="<?php echo wp_create_nonce( 'sendcodetaeed' ); ?>" class="edd_phone edd-input<?php if ( edd_field_is_required( 'edd_phone' ) ) { echo ' اجباری'; } ?>" type="tel" name="edd_phone" id="edd-phone" pattern="[0-9]{11}" placeholder="<?php _e( 'فرمت: 09121234567', 'easy-digital-downloads' ); ?>">
-        <button href="#" class="sendcodetaeed">ارسال کد تایید شماره موبایل</button>
-    </p>
-    <p id="edd-phone-taeed-wrap">
-        <label class="edd-label" for="edd-phone">
-		<?php esc_html_e( 'کد تایید را وارد کنید', 'easy-digital-downloads' ); ?>
-		<?php if ( edd_field_is_required( 'edd_phone_taeed' ) ) : ?>
-			<span class="edd-required-indicator">*</span>
-		<?php endif; ?>
-		</label>
-        <input class="edd_phone_taeed edd-input<?php if ( edd_field_is_required( 'edd_phone_taeed' ) ) { echo ' اجباری'; } ?>" type="tel" name="edd_phone_taeed" id="edd-phone" pattern="[0-9]{6}" >
-    </p>
-	<p id="edd-password-wrap">
-        <label class="edd-label" for="edd-password">
-		<?php esc_html_e( 'رمز عبور', 'easy-digital-downloads' ); ?>
-		<?php if ( edd_field_is_required( 'edd_password' ) ) : ?>
-			<span class="edd-required-indicator">*</span>
-		<?php endif; ?>
-		</label>
-        <input onkeyup="checkPasswordStrength()" class="edd_password edd-input<?php if ( edd_field_is_required( 'edd_password' ) ) { echo ' اجباری'; } ?>" type="text" name="edd_password" id="edd-password" placeholder="<?php _e( 'رمز عبور', 'easy-digital-downloads' ); ?>">
-		<div id="password-strength"></div>
-    </p>
+	<?php if ( ! get_current_user() ) : ?>
+
+		<p id="edd-password-wrap">
+			<label class="edd-label" for="edd-password">
+			<?php esc_html_e( 'رمز عبور', 'easy-digital-downloads' ); ?>
+			<?php if ( edd_field_is_required( 'edd_password' ) ) : ?>
+				<span class="edd-required-indicator">*</span>
+			<?php endif; ?>
+			</label>
+			<input onkeyup="checkPasswordStrength()" class="edd_password edd-input<?php if ( edd_field_is_required( 'edd_password' ) ) { echo ' اجباری'; } ?>" type="text" name="edd_password" id="edd-password" placeholder="<?php _e( 'رمز عبور', 'easy-digital-downloads' ); ?>">
+			<div id="password-strength"></div>
+		</p>
+		<div class="taeed-phone">
+			<p id="edd-phone-wrap">
+				<label class="edd-label" for="edd-phone">
+				<?php esc_html_e( 'شماره موبایل', 'easy-digital-downloads' ); ?>
+				<?php if ( edd_field_is_required( 'edd_phone' ) ) : ?>
+					<span class="edd-required-indicator">*</span>
+				<?php endif; ?>
+				</label>
+				<input data-nonce="<?php echo wp_create_nonce( 'sendcodetaeed' ); ?>" class="edd_phone edd-input<?php if ( edd_field_is_required( 'edd_phone' ) ) { echo ' اجباری'; } ?>" type="tel" name="edd_phone" id="edd-phone" pattern="[0-9]{11}" placeholder="<?php _e( 'فرمت: 09121234567', 'easy-digital-downloads' ); ?>">
+				<button href="#" class="sendcodetaeed">
+					<span class="loader" style="display: none;"></span>
+					ارسال کد تایید شماره موبایل
+				</button>
+			</p>
+			<p id="edd-phone-taeed-wrap" style="display:none;">
+				<label class="edd-label" for="edd-phone">
+				<?php esc_html_e( 'کد تایید را وارد کنید', 'easy-digital-downloads' ); ?>
+				<?php if ( edd_field_is_required( 'edd_phone_taeed' ) ) : ?>
+					<span class="edd-required-indicator">*</span>
+				<?php endif; ?>
+				</label>
+				<input class="edd_phone_taeed edd-input<?php if ( edd_field_is_required( 'edd_phone_taeed' ) ) { echo ' اجباری'; } ?>" type="tel" name="edd_phone_taeed" id="edd-phone" pattern="[0-9]{6}" >
+				<button href="#" class="sendcodetaeed" disabled>
+					<span class="loader" style="display: none;"></span>
+					ارسال مجدد بعدی از
+					<span class="counter"></span>
+					ثانیه
+				</button>
+			</p>
+		</div>
     <?php
+		endif;
 }
 add_action( 'edd_purchase_form_user_info_fields', 'custom_edd_display_checkout_custom_fields' );
 
@@ -243,18 +318,20 @@ add_action( 'edd_purchase_form_user_info_fields', 'custom_edd_display_checkout_c
  * Add more required fields here if you need to
  */
 function custom_edd_required_checkout_fields( $required_fields ) {
-    $required_fields['edd_phone'] = array(
-        'error_id' => 'invalid_phone',
-        'error_message' => 'لطفا یک شماره موبایل معتبر وارد کنید'
-    );
-    $required_fields['edd_phone_taeed'] = array(
-        'error_id' => 'invalid_edd_phone_taeed',
-        'error_message' => 'کد تایید صحیح نمیباشد'
-    );
-	$required_fields['edd_password'] = array(
-        'error_id' => 'invalid_password',
-        'error_message' => 'رمز عبور اجباری است'
-    );
+	if ( ! get_current_user() ) {
+		$required_fields['edd_phone'] = array(
+			'error_id' => 'invalid_phone',
+			'error_message' => 'لطفا یک شماره موبایل معتبر وارد کنید'
+		);
+		$required_fields['edd_phone_taeed'] = array(
+			'error_id' => 'invalid_edd_phone_taeed',
+			'error_message' => 'کد تایید صحیح نمیباشد'
+		);
+		$required_fields['edd_password'] = array(
+			'error_id' => 'invalid_password',
+			'error_message' => 'رمز عبور اجباری است'
+		);
+	}
 
     return $required_fields;
 }
@@ -265,33 +342,36 @@ add_filter( 'edd_purchase_form_required_fields', 'custom_edd_required_checkout_f
  * You can do additional error checking here if required
  */
 function custom_edd_validate_checkout_fields( $valid_data, $data ) {
-	if ( username_exists( $data['edd_phone'] ) ) {
-		edd_set_error( 'invalid_phone', 'قبلا با این شماره موبایل در سایت ثبت نام صورت گرفته است لطفا اول وارد شودی' );
+
+	if ( ! get_current_user() ) {
+		if ( username_exists( $data['edd_phone'] ) ) {
+			edd_set_error( 'invalid_phone', 'قبلا با این شماره موبایل در سایت ثبت نام صورت گرفته است لطفا اول وارد شودی' );
+		}
+
+		if ( email_exists( $data['edd_email'] ) ) {
+			edd_set_error( 'invalid_email', 'قبلا با این شماره ایمیل در سایت ثبت نام صورت گرفته است' );
+		}
+
+		if ( empty( $data['edd_phone'] ) && ! is_numeric( $data['edd_phone'] ) ) {
+			edd_set_error( 'invalid_phone', 'شماره موبایل معتبر نیست لطفا مجدد تلاش کنید.' );
+		}
+
+		if ( empty( $data['edd_phone_taeed'] ) ) {
+			edd_set_error( 'invalid_edd_phone_taeed', 'شماره موبایل تایید نشده است.' );
+		} else {
+			if ( $_SESSION['sms_code'] !== $data['edd_phone_taeed'] ) {
+				edd_set_error( 'invalid_edd_phone_taeed', 'کد تایید صحیح نمیباشد' );
+			}
+		}
+
+		if ( empty( $data['edd_password'] ) ) {
+			edd_set_error( 'invalid_password', 'رمز عبور اجباری است' );
+		}
+
+		if ( ! empty( $data['edd_password'] ) && ! is_strong_password( $data['edd_password'] ) ) {
+			edd_set_error( 'invalid_password', 'رمز عبور قوی نیست' );
+		}
 	}
-
-	if ( email_exists( $data['edd_email'] ) && ! get_current_user() ) {
-		edd_set_error( 'invalid_email', 'قبلا با این شماره ایمیل در سایت ثبت نام صورت گرفته است' );
-	}
-
-    if ( empty( $data['edd_phone'] ) && ! is_numeric( $data['edd_phone'] ) ) {
-        edd_set_error( 'invalid_phone', 'شماره موبایل معتبر نیست لطفا مجدد تلاش کنید.' );
-    }
-
-    if ( empty( $data['edd_phone_taeed'] ) ) {
-        edd_set_error( 'invalid_edd_phone_taeed', 'شماره موبایل تایید نشده است.' );
-    } else {
-        if ( $_SESSION['sms_code'] !== $data['edd_phone_taeed'] ) {
-            edd_set_error( 'invalid_edd_phone_taeed', 'کد تایید صحیح نمیباشد' );
-        }
-    }
-
-	if ( empty( $data['edd_password'] ) ) {
-        edd_set_error( 'invalid_password', 'رمز عبور اجباری است' );
-    }
-
-	if ( ! empty( $data['edd_password'] ) && ! is_strong_password( $data['edd_password'] ) ) {
-        edd_set_error( 'invalid_password', 'رمز عبور قوی نیست' );
-    }
 }
 add_action( 'edd_checkout_error_checks', 'custom_edd_validate_checkout_fields', 10, 2 );
 
@@ -300,7 +380,7 @@ add_action( 'edd_checkout_error_checks', 'custom_edd_validate_checkout_fields', 
  */
 function custom_edd_store_custom_fields( $order_id, $order_data ) {
 
-	if ( did_action( 'edd_pre_process_purchase' ) ) {
+	if ( did_action( 'edd_pre_process_purchase' ) && ! get_current_user() ) {
 		$username		= isset( $_POST['edd_phone'] ) ? sanitize_text_field( $_POST['edd_phone'] ) : '';
 		$password		= isset( $_POST['edd_password'] ) ? sanitize_text_field( $_POST['edd_password'] ) : '';
 		$email			= isset( $_POST['edd_email'] ) ? sanitize_text_field( $_POST['edd_email'] ) : '';
@@ -442,3 +522,11 @@ function sendCodeMelliPayamak($mobile,$pattern,$code) {
 		return json_decode($result);
 
 }
+
+
+function disable_edd_checkout() {
+    remove_action('edd_payment_mode_select', 'edd_payment_mode_select');
+    remove_action('edd_purchase_form_before_submit', 'edd_checkout_form_user_info');
+    remove_action('edd_purchase_form_after_user_info', 'edd_checkout_form_user_info');
+}
+add_action('init', 'disable_edd_checkout');
