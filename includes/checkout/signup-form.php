@@ -333,7 +333,14 @@ function custom_edd_required_checkout_fields( $required_fields ) {
 		);
 	}
 
+	// disable billing form
+	unset( $required_fields['card_zip'] );
+	unset( $required_fields['card_city'] );
+	unset( $required_fields['billing_country'] );
+	unset( $required_fields['card_state'] );
+
 	var_dump( $required_fields );
+
     return $required_fields;
 }
 add_filter( 'edd_purchase_form_required_fields', 'custom_edd_required_checkout_fields' );
