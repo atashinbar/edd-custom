@@ -333,6 +333,7 @@ function custom_edd_required_checkout_fields( $required_fields ) {
 		);
 	}
 
+	var_dump( $required_fields );
     return $required_fields;
 }
 add_filter( 'edd_purchase_form_required_fields', 'custom_edd_required_checkout_fields' );
