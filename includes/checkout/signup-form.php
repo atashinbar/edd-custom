@@ -533,6 +533,7 @@ add_action('init', 'disable_edd_checkout');
 
 function remove_billing_field($fields) {
     // Replace 'company' with the actual field name you want to remove
+	var_dump( $fields );
     unset($fields['billing']['company']);
     return $fields;
 }
