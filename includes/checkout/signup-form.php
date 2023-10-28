@@ -532,7 +532,7 @@ function sendCodeMelliPayamak($mobile,$pattern,$code) {
 /**
  * Removes the billing details section on the checkout screen.
  */
-function jp_disable_billing_details() {
+function disable_billing_details() {
 	remove_action( 'edd_after_cc_fields', 'edd_default_cc_address_fields' );
 }
-add_action( 'init', 'jp_disable_billing_details' );
+add_action( 'init', 'disable_billing_details' );
