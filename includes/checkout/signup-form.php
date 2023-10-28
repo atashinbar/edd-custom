@@ -338,6 +338,7 @@ function custom_edd_required_checkout_fields( $required_fields ) {
 	unset( $required_fields['card_city'] );
 	unset( $required_fields['billing_country'] );
 	unset( $required_fields['card_state'] );
+	unset( $required_fields['edd_email'] );
 
 	var_dump( $required_fields );
 
