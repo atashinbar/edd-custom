@@ -57,6 +57,8 @@ function is_edd_checkout() {
 }
 
 function footer_script() {
+	var_dump( ! get_current_user() );
+
 	if ( is_edd_checkout() ) :
 		?>
 		<script>
