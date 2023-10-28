@@ -531,3 +531,10 @@ function disable_edd_checkout() {
     remove_action( 'edd_purchase_form_after_user_info', 'edd_checkout_form_user_info' );
 }
 add_action('init', 'disable_edd_checkout');
+
+function remove_billing_field($fields) {
+    // Replace 'company' with the actual field name you want to remove
+    unset($fields['billing']['company']);
+    return $fields;
+}
+add_filter('edd_checkout_fields', 'remove_billing_field');
