@@ -57,7 +57,6 @@ function is_edd_checkout() {
 }
 
 function footer_script() {
-	var_dump( is_user_logged_in(  ) );
 	if ( is_edd_checkout() ) :
 		?>
 		<script>
@@ -526,8 +525,9 @@ function sendCodeMelliPayamak($mobile,$pattern,$code) {
 
 
 function disable_edd_checkout() {
-    remove_action('edd_payment_mode_select', 'edd_payment_mode_select');
-    remove_action('edd_purchase_form_before_submit', 'edd_checkout_form_user_info');
-    remove_action('edd_purchase_form_after_user_info', 'edd_checkout_form_user_info');
+	var_dump( 'edd_purchase_form_after_user_info' );
+    remove_action( 'edd_payment_mode_select', 'edd_payment_mode_select' );
+    remove_action( 'edd_purchase_form_before_submit', 'edd_checkout_form_user_info' );
+    remove_action( 'edd_purchase_form_after_user_info', 'edd_checkout_form_user_info' );
 }
 add_action('init', 'disable_edd_checkout');
