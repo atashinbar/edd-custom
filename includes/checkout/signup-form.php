@@ -338,9 +338,6 @@ function custom_edd_required_checkout_fields( $required_fields ) {
 	unset( $required_fields['card_city'] );
 	unset( $required_fields['billing_country'] );
 	unset( $required_fields['card_state'] );
-	unset( $required_fields['edd_email'] );
-
-	var_dump( $required_fields );
 
     return $required_fields;
 }
@@ -534,7 +531,9 @@ function sendCodeMelliPayamak($mobile,$pattern,$code) {
 
 
 function disable_edd_checkout() {
+	var_dump( did_action( 'edd_after_cc_fields' ) );
     remove_action( 'edd_after_cc_fields', 'edd_default_cc_address_fields' );
+	// remove_action( 'edd_cc_fields', 'EDD\Blocks\Checkout\do_cc_fields' );
 }
 add_action('init', 'disable_edd_checkout');
 
