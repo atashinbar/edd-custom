@@ -531,10 +531,10 @@ function sendCodeMelliPayamak($mobile,$pattern,$code) {
 
 
 function disable_edd_checkout() {
-	var_dump( did_action( 'edd_after_cc_fields' ) );
-    remove_action( 'edd_after_cc_fields', 'edd_default_cc_address_fields' );
-	// remove_action( 'edd_cc_fields', 'EDD\Blocks\Checkout\do_cc_fields' );
 }
+remove_action( 'edd_cc_fields', 'EDD\Blocks\Checkout\do_cc_fields' );
+var_dump( did_action( 'edd_after_cc_fields' ) );
+remove_action( 'edd_after_cc_fields', 'edd_default_cc_address_fields' );
 add_action('init', 'disable_edd_checkout', 999);
 
 function remove_billing_field($fields) {
