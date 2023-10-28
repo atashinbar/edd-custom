@@ -525,7 +525,6 @@ function sendCodeMelliPayamak($mobile,$pattern,$code) {
 
 
 function disable_edd_checkout() {
-	var_dump( 'edd_purchase_form_after_user_info' );
     remove_action( 'edd_payment_mode_select', 'edd_payment_mode_select' );
     remove_action( 'edd_purchase_form_before_submit', 'edd_checkout_form_user_info' );
     remove_action( 'edd_purchase_form_after_user_info', 'edd_checkout_form_user_info' );
