@@ -535,7 +535,7 @@ function disable_edd_checkout() {
     remove_action( 'edd_after_cc_fields', 'edd_default_cc_address_fields' );
 	// remove_action( 'edd_cc_fields', 'EDD\Blocks\Checkout\do_cc_fields' );
 }
-add_action('init', 'disable_edd_checkout');
+add_action('init', 'disable_edd_checkout', 9999);
 
 function remove_billing_field($fields) {
     // Replace 'company' with the actual field name you want to remove
