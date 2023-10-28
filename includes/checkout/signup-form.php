@@ -57,8 +57,6 @@ function is_edd_checkout() {
 }
 
 function footer_script() {
-	var_dump( get_current_user() );
-
 	if ( is_edd_checkout() ) :
 		?>
 		<script>
@@ -268,7 +266,7 @@ function custom_edd_display_checkout_custom_fields() {
             }
         }
     </script>
-	<?php if ( ! get_current_user() ) : ?>
+	<?php if ( ! wp_get_current_user() ) : ?>
 
 		<p id="edd-password-wrap">
 			<label class="edd-label" for="edd-password">
@@ -320,7 +318,7 @@ add_action( 'edd_purchase_form_user_info_fields', 'custom_edd_display_checkout_c
  * Add more required fields here if you need to
  */
 function custom_edd_required_checkout_fields( $required_fields ) {
-	if ( ! get_current_user() ) {
+	if ( ! wp_get_current_user() ) {
 		$required_fields['edd_phone'] = array(
 			'error_id' => 'invalid_phone',
 			'error_message' => 'لطفا یک شماره موبایل معتبر وارد کنید'
@@ -345,7 +343,7 @@ add_filter( 'edd_purchase_form_required_fields', 'custom_edd_required_checkout_f
  */
 function custom_edd_validate_checkout_fields( $valid_data, $data ) {
 
-	if ( ! get_current_user() ) {
+	if ( ! wp_get_current_user() ) {
 		if ( username_exists( $data['edd_phone'] ) ) {
 			edd_set_error( 'invalid_phone', 'قبلا با این شماره موبایل در سایت ثبت نام صورت گرفته است لطفا اول وارد شودی' );
 		}
@@ -382,7 +380,7 @@ add_action( 'edd_checkout_error_checks', 'custom_edd_validate_checkout_fields', 
  */
 function custom_edd_store_custom_fields( $order_id, $order_data ) {
 
-	if ( did_action( 'edd_pre_process_purchase' ) && ! get_current_user() ) {
+	if ( did_action( 'edd_pre_process_purchase' ) && ! wp_get_current_user() ) {
 		$username		= isset( $_POST['edd_phone'] ) ? sanitize_text_field( $_POST['edd_phone'] ) : '';
 		$password		= isset( $_POST['edd_password'] ) ? sanitize_text_field( $_POST['edd_password'] ) : '';
 		$email			= isset( $_POST['edd_email'] ) ? sanitize_text_field( $_POST['edd_email'] ) : '';
