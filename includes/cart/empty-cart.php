@@ -1,6 +1,6 @@
 <?php
 
-add_action( 'kata_page_after_the_content', 'ma_empty_cart_template' );
+add_action( 'edd_before_checkout_cart', 'ma_empty_cart_template' );
 // add_filter( 'the_content', 'filter_the_content_in_the_main_loop', 1 );
 
 function filter_the_content_in_the_main_loop() {
