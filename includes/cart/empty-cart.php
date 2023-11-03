@@ -1,6 +1,6 @@
 <?php
 
-add_action( 'edd_cart_contents_loaded', 'ma_empty_cart_template' );
+add_action( 'kata_page_after_the_content', 'ma_empty_cart_template' );
 
 function ma_empty_cart_template() {
 	if ( is_page( 631 ) )
