@@ -3,6 +3,6 @@
 add_action( 'edd_cart_contents_loaded', 'ma_empty_cart_template' );
 
 function ma_empty_cart_template() {
-	var_dump( is_page( 631 ) );
-	echo 'test';
+	if ( is_page( 631 ) )
+	echo '<img src="' . esc_url( EDD_CUSTOM_URL . 'assets/images/empty-cart.png' ) . '" alt="empty-cart" class="empty-cart">';
 }
