@@ -4,6 +4,8 @@
 add_filter( 'the_content', 'ma_empty_cart_template', 1 );
 function ma_empty_cart_template( $content ) {
 	if ( is_page( 631 ) && ! did_action( 'edd_checkout_cart_item_title_after' ) ) {
-		echo '<img src="' . esc_url( EDD_CUSTOM_URL . 'assets/images/svg/empty-cart.svg' ) . '" alt="empty-cart" class="empty-cart">';
+		$content .= '<h1>سبد خرید شما خالی است</h1>';
+		$content .= '<img src="' . esc_url( EDD_CUSTOM_URL . 'assets/images/svg/empty-cart.svg' ) . '" alt="empty-cart" class="empty-cart">';
 	}
+	return $content;
 }
