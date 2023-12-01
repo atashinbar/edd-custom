@@ -9,8 +9,9 @@
 defined( 'ABSPATH' ) || exit;
 
 
+// کلید مجوز شما در حال منقضی شدن است
 remove_action( 'edd_edit_renewal_notice', 'edd_sl_process_update_renewal_notice' );
-
+add_action( 'edd_edit_renewal_notice', 'moadian_abzar_edd_sl_process_update_renewal_notice' );
 function moadian_abzar_edd_sl_process_update_renewal_notice( $data ) {
 
 	if( ! is_admin() ) {
@@ -67,4 +68,3 @@ function moadian_abzar_edd_sl_process_update_renewal_notice( $data ) {
 	exit;
 
 }
-add_action( 'edd_edit_renewal_notice', 'moadian_abzar_edd_sl_process_update_renewal_notice' );
