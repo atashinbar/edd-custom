@@ -135,3 +135,60 @@ function modian_abzar_edd_sl_process_update_renewal_notice( $data ) {
 }
 remove_action( 'edd_edit_renewal_notice', 'edd_sl_process_update_renewal_notice' );
 add_action( 'edd_edit_renewal_notice', 'modian_abzar_edd_sl_process_update_renewal_notice' );
+
+
+/**
+ * Processes the update of an existing reminder notice
+ *
+ * @since 2.4
+ *
+ * @param array $data The post data
+ *
+ * @return void
+ */
+function modian_abzar_edd_recurring_process_update_reminder_notice( $data ) {
+
+	if ( ! is_admin() ) {
+		return;
+	}
+
+	if ( ! current_user_can( 'manage_shop_settings' ) ) {
+		wp_die( __( 'You do not have permission to add reminder notices', 'edd-recurring' ), __( 'Error', 'edd-recurring' ), array( 'response' => 401 ) );
+	}
+
+	if ( ! wp_verify_nonce( $data['edd-recurring-reminder-notice-nonce'], 'edd_recurring_reminder_nonce' ) ) {
+		wp_die( __( 'Nonce verification failed', 'edd-recurring' ), __( 'Error', 'edd-recurring' ), array( 'response' => 401 ) );
+	}
+
+	if ( ! isset( $data['notice-id'] ) ) {
+		wp_die( __( 'No reminder notice ID was provided', 'edd-recurring' ) );
+	}
+
+	$subject = isset( $data['subject'] ) ? sanitize_text_field( $data['subject'] ) : __( 'Your Subscription is About to Renew', 'edd-recurring' );
+	$period  = isset( $data['period'] ) ? sanitize_text_field( $data['period'] ) : '+1month';
+	$message = isset( $data['message'] ) ? stripslashes( $data['message'] ) : false;
+	$type    = isset( $data['type'] ) ? sanitize_text_field( $data['type'] ) : 'renewal';
+
+	if ( empty( $message ) ) {
+		$message = 'Hello {name},
+
+Your subscription for {subscription_name} will renew on {expiration}.';
+	}
+
+	$reminders                               = new EDD_Recurring_Reminders();
+	$notices                                 = $reminders->get_notices();
+	$notices[ absint( $data['notice-id'] ) ] = array(
+		'subject'     => $subject,
+		'message'     => $message,
+		'send_period' => $period,
+		'type'		  => $type
+	);
+
+	update_option( 'edd_recurring_reminder_notices', $notices );
+
+	wp_safe_redirect( edd_recurring_get_email_settings_url() );
+	exit;
+
+}
+remove_action( 'edd_recurring_edit_reminder_notice', 'edd_recurring_process_update_reminder_notice' );
+add_action( 'edd_recurring_edit_reminder_notice', 'modian_abzar_edd_recurring_process_update_reminder_notice' );
