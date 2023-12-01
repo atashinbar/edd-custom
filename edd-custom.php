@@ -21,3 +21,4 @@ define( 'EDD_CUSTOM_URL', plugin_dir_url( __FILE__ ) );
 
 include EDD_CUSTOM_PATH . 'includes/checkout/signup-form.php';
 include EDD_CUSTOM_PATH . 'includes/cart/empty-cart.php';
+include EDD_CUSTOM_PATH . 'includes/email/template.php';
