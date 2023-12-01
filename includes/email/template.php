@@ -15,7 +15,7 @@ defined( 'ABSPATH' ) || exit;
  * @param array $data The post data
  * @return void
  */
-function edd_sl_process_add_renewal_notice( $data ) {
+function modian_abzar_edd_sl_process_add_renewal_notice( $data ) {
 
 	if( ! is_admin() ) {
 		return;
@@ -77,7 +77,7 @@ add_action( 'edd_add_renewal_notice', 'modian_abzar_edd_sl_process_add_renewal_n
  * @param array $data The post data
  * @return void
  */
-function edd_sl_process_update_renewal_notice( $data ) {
+function modian_abzar_edd_sl_process_update_renewal_notice( $data ) {
 
 	if( ! is_admin() ) {
 		return;
